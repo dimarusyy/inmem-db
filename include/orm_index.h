@@ -1,8 +1,13 @@
 #pragma once
 
-#include <boost/intrusive/unordered_set.hpp>
 #include "logger.h"
 #include "error.h"
+
+#include <boost/intrusive/unordered_set.hpp>
+#include <experimental/coroutine>
+
+#include <cppcoro/generator.hpp>
+#pragma comment(lib, "cppcoro.lib")
 
 namespace bi = boost::intrusive;
 
@@ -41,6 +46,29 @@ struct orm_index_t  // pow^2 of bucket size
         return try_rehash() ? _index_aux.insert(entry) : _index.insert(entry);
     }
 
+    auto erase(typename container_type::iterator it)
+    {
+        try_rehash();
+        if(_is_rehashing)
+            _index_aux.erase(it);
+        _index.erase(it);
+    }
+
+    cppcoro::generator<typename container_type::iterator> 
+        find(const typename container_type::key_type& key)        
+    {
+        const auto range = _index.equal_range(key);
+        for(auto it = range.first; it != range.second; it++)
+            co_yield it;
+        if (_is_rehashing)
+        {
+            // try aux bucket
+            const auto range_aux = _index_aux.equal_range(key);
+            for (auto it = range_aux.first; it != range_aux.second; it++)
+                co_yield it;
+        }
+    }
+
     auto size() const
     {
         return _index.size();
@@ -52,6 +80,7 @@ protected:
     {
         if (_index.size() >= _buckets.size() && !_is_rehashing)
         {
+            spdlog::info("initiating rehashing, index size=[{0}]", _index.size());
             _is_rehashing = true;
 
             // alloc aux bucket
@@ -72,17 +101,19 @@ protected:
             _buckets_aux.clear();
             _is_rehashing = false;
 
+            spdlog::info("rehashing succeeded");
             return false;
         }
 
         // move 1 element
+        // TBD : consider decreasing bucket size by rehashing to bucket with less size
         auto it = _index.begin();
         auto& obj = *it;
         
         _index.erase(it);
         _index_aux.insert(obj);
 
-        spdlog::debug("main index size=[{0}], aux index size=[{1}]", _index.size(), _index_aux.size());
+        spdlog::debug("rehashed 1-st enrty, main index size=[{0}], aux index size=[{1}]", _index.size(), _index_aux.size());
 
         return true;
     }
