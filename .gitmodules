@@ -1,0 +1,4 @@
+[submodule "3rdparty/cppcoro"]
+	path = 3rdparty/cppcoro
+	url = https://github.com/lewissbaker/cppcoro.git
+	branch = vs2019
