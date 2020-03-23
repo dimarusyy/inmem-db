@@ -5,8 +5,17 @@
 
 #include <boost/container/stable_vector.hpp>
 
-struct TodoSimple : bi_hook_type
+struct Todo
 {
+    const int64_t id;
+    std::string title;
+    std::string description;
+    double timestamp;
+};
+
+struct TodoSimple :  bi_hook_type
+{
+//    using Todo::Todo;
     const int64_t id;
     std::string title;
     std::string description;
@@ -24,15 +33,15 @@ struct id_indexer_t
 };
 
 
-#if 0
+#if 1
 TEST_CASE("rehash_simple")
 {
-    boost::container::stable_vector<MyStruct> vec{ MyStruct{.id = 1}, MyStruct{.id = 2} };
-    orm_index_t<MyStruct, id_indexer_t> index{};
+    boost::container::stable_vector<TodoSimple> vec{ TodoSimple{.id = 1}, TodoSimple{.id = 2} };
+    orm_index_t<TodoSimple, id_indexer_t> index{};
     index.insert(*vec.begin());
     index.insert(*std::next(vec.begin()));
 
-    vec.emplace_back(MyStruct{ .id = 3 });
+    vec.emplace_back(TodoSimple{ .id = 3 });
     index.insert(vec.back());
 
     CHECK(index.size() == 3);
@@ -40,8 +49,8 @@ TEST_CASE("rehash_simple")
 
 TEST_CASE("find_simple")
 {
-    boost::container::stable_vector<MyStruct> vec{ MyStruct{.id = 1}, MyStruct{.id = 2} };
-    orm_index_t<MyStruct, id_indexer_t> index{};
+    boost::container::stable_vector<TodoSimple> vec{ TodoSimple{.id = 1}, TodoSimple{.id = 2} };
+    orm_index_t<TodoSimple, id_indexer_t> index{};
     index.insert(*vec.begin());
     index.insert(*std::next(vec.begin()));
 
@@ -139,7 +148,7 @@ TEST_CASE("update")
     auto& obj = *(*(it.begin()));
     obj.description = "modified entry 1";
 
-    auto& obj_1 = *(*(index.find(4).begin()));   
+    auto& obj_1 = *(*(index.find(1).begin()));   
     CHECK(obj_1.description == "modified entry 1");
 }
 #endif

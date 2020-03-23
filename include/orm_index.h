@@ -26,8 +26,6 @@ struct orm_index_t  // pow^2 of bucket size
     orm_index_t(std::size_t sz = 2)
         : _buckets(sz)
         , _index(container_type::bucket_traits(_buckets.data(), sz))
-        , _buckets_aux(1)
-        , _index_aux(container_type::bucket_traits(_buckets_aux.data(), 1))
     {
         assert((sz & (sz - 1)) == 0);
     }
@@ -35,8 +33,6 @@ struct orm_index_t  // pow^2 of bucket size
     orm_index_t(Iterator begin, Iterator end, std::size_t sz = 2)
         : _buckets(sz)
         , _index(begin, end, container_type::bucket_traits(_buckets.data(), sz))
-        , _buckets_aux(1)
-        , _index_aux(container_type::bucket_traits(_buckets_aux.data(), 1))
     {
         assert((sz & (sz - 1)) == 0);
     }
@@ -71,7 +67,7 @@ struct orm_index_t  // pow^2 of bucket size
 
     auto size() const
     {
-        return _index.size();
+        return _is_rehashing ? _index.size() + _index_aux.size() : _index.size();
     }
 
 protected:
@@ -122,8 +118,8 @@ private:
     std::vector<bucket_type> _buckets;
     container_type _index;
 
-    std::vector<bucket_type> _buckets_aux;
-    container_type _index_aux;
+    std::vector<bucket_type> _buckets_aux{ 1 };
+    container_type _index_aux{ typename container_type::bucket_traits(_buckets_aux.data(), 1) };
 
     bool _is_rehashing{ false };
 };
