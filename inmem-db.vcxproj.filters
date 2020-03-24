@@ -53,5 +53,8 @@
     <ClInclude Include="include\logger.h">
       <Filter>Header Files\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\orm_types.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

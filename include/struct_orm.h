@@ -27,7 +27,7 @@ struct struct_orm
                              auto& field_value_ref = fusion::at_c<index>(v);
                              typedef std::decay_t<decltype(field_value_ref)> field_type;
 
-                             handler.template operator() < field_type > (field_name, field_value_ref);
+                             handler.template operator()<field_type>(field_name, field_value_ref);
                          });
     }
 

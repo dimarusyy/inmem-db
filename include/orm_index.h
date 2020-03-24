@@ -1,21 +1,13 @@
 #pragma once
 
 #include "logger.h"
-#include "error.h"
 
-#include <boost/intrusive/unordered_set.hpp>
 #include <experimental/coroutine>
 
 #include <cppcoro/generator.hpp>
 #pragma comment(lib, "cppcoro.lib")
 
-namespace bi = boost::intrusive;
-
-using bi_hook_type = bi::unordered_set_base_hook<
-    bi::link_mode<bi::safe_link>,
-    bi::optimize_multikey<true>,
-    bi::compare_hash<true>,
-    bi::incremental<true>>;
+#include "orm_types.h"
 
 template <typename T, typename Indexer>
 struct orm_index_t  // pow^2 of bucket size
@@ -29,6 +21,7 @@ struct orm_index_t  // pow^2 of bucket size
     {
         assert((sz & (sz - 1)) == 0);
     }
+
     template <typename Iterator>
     orm_index_t(Iterator begin, Iterator end, std::size_t sz = 2)
         : _buckets(sz)

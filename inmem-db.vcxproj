@@ -171,6 +171,7 @@
     <ClInclude Include="include\error.h" />
     <ClInclude Include="include\logger.h" />
     <ClInclude Include="include\orm_index.h" />
+    <ClInclude Include="include\orm_types.h" />
     <ClInclude Include="include\property.h" />
     <ClInclude Include="include\property_storage.h" />
     <ClInclude Include="include\storage.h" />
